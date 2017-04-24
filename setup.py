@@ -41,20 +41,17 @@ def read(fname):
 setup(
     name="python-uptimerobot",
     version=app.__version__,
-    description="""Uptime Robot http://uptimerobot.com integration for your Python project. 
-    There is a Django version (https://github.com/arteria/django-uptimerobot) available containing the Uptime Robot 
-    API implementation and the infrastructure stuff used by Djangonauts. """,
+    description="""Uptime Robot http://uptimerobot.com integration for your Python project.""",
     long_description=read('README.rst'),
     classifiers=[
-          "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 3",
     ],
     license='The MIT License',
     platforms=['OS Independent'],
     keywords='uptime robot, API, monitoring',
     author='arteria GmbH',
-    author_email='admin@arteria.ch',
-    url="https://github.com/arteria/python-uptimerobot",
+    author_email='thomas@tjrb.nl',
+    url="https://github.com/jagter/python-uptimerobot",
     packages=find_packages(),
     include_package_data=True,
 )

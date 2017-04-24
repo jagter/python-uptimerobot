@@ -2,8 +2,6 @@ Uptime Robot integration for Python
 ============
 
 Uptime Robot http://uptimerobot.com integration for your Python project. 
-There is a Django version (https://github.com/arteria/django-uptimerobot) available containing the Uptime Robot API 
-implementation and the infrastructure stuff used by Djangonauts.
 
 Installation
 ------------
@@ -18,7 +16,7 @@ To get the latest commit from GitHub
 
 .. code-block:: bash
 
-    $ pip install -e git+git://github.com/arteria/python-uptimerobot.git#egg=uptimerobot
+    $ pip install -e git+git://github.com/jagter/python-uptimerobot.git#egg=uptimerobot
 
  
 
