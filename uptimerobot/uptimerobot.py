@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 import requests
+import json
 from urllib.parse import quote
 
 
@@ -11,13 +10,16 @@ class UptimeRobot(object):
         if url is None:
             self.baseUrl = "https://api.uptimerobot.com/v2/"
 
-    def _request(self, req, parameters=None):
+    def __perform_request(self, req, parameters=None):
 
-        payload = "api_key={0}&format=json&logs=1".format(self.apiKey)
+        payload = {'api_key': self.apiKey, 'format': 'json', 'logs': 1}
+
         url = self.baseUrl + str(req)
 
         if parameters is not None:
-            payload += parameters
+            for k, v in parameters.items():
+                update_parameters = {k: v}
+                payload.update(update_parameters)
 
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,113 +40,61 @@ class UptimeRobot(object):
         """
         Returns status and response payload for all known monitors.
         """
-        return self._request('/getMonitors')
+        return self.__perform_request('/getMonitors')
 
     def getMonitorByName(self, friendlyName):
         """
         Returns monitor by name
         """
 
-        req = self._request('/getMonitors')
+        req = self.__perform_request('/getMonitors')
 
         for item in req['monitors']:
             if item['friendly_name'] == friendlyName:
-                return item
+                return json.dumps(item)
 
-        return 'Error: monitor not found'
+        return json.dumps(dict({'stat': 'fail', 'message': 'monitor not found'}))
 
     def getMonitorById(self, monitorId):
         """
         Returns the monitor by ID
         """
 
-        req = self._request('/getMonitors')
+        req = self.__perform_request('/getMonitors')
 
         for item in req['monitors']:
             if item['id'] == monitorId:
-                return item
+                return json.dumps(item)
 
-        return 'Error: monitor not found'
+        return json.dumps(dict({'stat': 'fail', 'message': 'monitor not found'}))
 
     def newMonitor(self, friendly_name, type, url, **kwargs):
 
-        url_encode = self.__url_to_html(url)
-        friendly_name_encode = self.__url_to_html(friendly_name)
+        new_monitor = {'friendly_name': self.__url_to_html(friendly_name), 'type': type,
+                       'url': self.__url_to_html(url)}
 
-        new_monitor = "&friendly_name={0}&type={1}&url={2}".format(friendly_name_encode, type, url_encode)
-
-        if kwargs is not None:
+        if kwargs:
             for k, v in kwargs.items():
-                new_monitor += "&{}={}".format(k, v)
+                update_kwargs = {k: self.__url_to_html(v)}
+                new_monitor.update(update_kwargs)
 
-        req = self._request('/newMonitor', new_monitor)
-
-        return req
+        return self.__perform_request('/newMonitor', new_monitor)
 
     def editMonitor(self, monid, **kwargs):
 
-        edit_monitor = "&id={0}".format(monid)
+        edit_monitor = {'id': monid}
 
-        if kwargs is not None:
+        if kwargs:
             for k, v in kwargs.items():
-                edit_monitor += "&{}={}".format(k, v)
+                update_kwargs = {k: self.__url_to_html(v)}
+                edit_monitor.update(update_kwargs)
 
-        req = self._request('/editMonitor', edit_monitor)
-
-        return edit_monitor
+        return self.__perform_request('/editMonitor', edit_monitor)
 
     def __url_to_html(self, inputstring):
 
         return quote(inputstring, safe='')
 
-        # def editMonitor(self, monitorID, monitorStatus=None, monitorFriendlyName=None, monitorURL=None, monitorType=None,
-        #                 monitorSubType=None, monitorPort=None, monitorKeywordType=None, monitorKeywordValue=None,
-        #                 monitorHTTPUsername=None, monitorHTTPPassword=None, monitorAlertContacts=None):
-        #     """
-        #     monitorID is the only required object. All others are optional and must be quoted.
-        #     Returns Response object from api.
-        #     """
-        #
-        #     url = self.baseUrl
-        #     url += "editMonitor?apiKey=%s" % self.apiKey
-        #     url += "&monitorID=%s" % monitorID
-        #     if monitorStatus:
-        #         # Pause, Start Montir
-        #         url += "&monitorStatus=%s" % monitorStatus
-        #     if monitorFriendlyName:
-        #         # Update their FriendlyName
-        #         url += "&monitorFriendlyName=%s" % monitorFriendlyName
-        #     if monitorURL:
-        #         # Edit the MontiorUrl
-        #         url += "&monitorURL=%s" % monitorURL
-        #     if monitorType:
-        #         # Edit the type of montior
-        #         url += "&monitorType=%s" % monitorType
-        #     if monitorSubType:
-        #         # Edit the SubType
-        #         url += "&monitorSubType=%s" % monitorSubType
-        #     if monitorPort:
-        #         # Edit the Port
-        #         url += "&monitorPort=%s" % monitorPort
-        #     if monitorKeywordType:
-        #         # Edit the Keyword Type
-        #         url += "&monitorKeywordType=%s" % monitorKeywordType
-        #     if monitorKeywordValue:
-        #         # Edit the Keyword Match
-        #         url += "&monitorKeywordValue=%s" % monitorKeywordValue
-        #     if monitorHTTPUsername:
-        #         # Edit the HTTP Username
-        #         url += "&monitorHTTPUsername=%s" % monitorHTTPUsername
-        #     if monitorHTTPPassword:
-        #         # Edit the HTTP Password
-        #         url += "&monitorHTTPPassword=%s" % monitorHTTPPassword
-        #     if monitorAlertContacts:
-        #         # Edit the contacts
-        #         url += "&monitorAlertContacts=%s" % monitorAlertContacts
-        #     url += "&noJsonCallback=1&format=json"
-        #     success = self.requestApi(url)
-        #     return success
-        #
         #
         # def deleteMonitorById(self, monitorID):
         #     """
