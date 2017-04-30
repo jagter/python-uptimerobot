@@ -30,11 +30,13 @@ class UptimeRobot(object):
             post_req = requests.post(url, data=payload, headers=headers)
 
             if not post_req.status_code == 200:
-                return 'Error: unexpected response {}'.format(post_req.status_code)
+                err_msg = 'Error: unexpected response {}'.format(post_req.status_code)
+                return json.dumps(dict({'stat': 'fail', 'message': err_msg}))
             else:
                 return post_req.json()
         except requests.exceptions.RequestException as e:
-            return 'Error: {}'.format(e)
+            err_msg = 'Error: {}'.format(e)
+            return json.dumps(dict({'stat': 'fail', 'message': err_msg}))
 
     def getMonitors(self):
         """
@@ -69,6 +71,10 @@ class UptimeRobot(object):
         return json.dumps(dict({'stat': 'fail', 'message': 'monitor not found'}))
 
     def newMonitor(self, friendly_name, type, url, **kwargs):
+        """
+        Add's a new monitor.
+        :return: json object
+        """
 
         new_monitor = {'friendly_name': self.__url_to_html(friendly_name), 'type': type,
                        'url': self.__url_to_html(url)}
